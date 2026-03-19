@@ -82,7 +82,8 @@ exports.generate = async (resumeData) => {
     });
 
     console.log(`[PDF] Generated successfully, size: ${pdf.length} bytes`);
-    return pdf;
+    // return pdf;
+    return Buffer.from(pdf);
   } finally {
     if (browser) await browser.close();
   }
