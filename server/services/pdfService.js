@@ -44,7 +44,7 @@ exports.generate = async (resumeData) => {
     console.log(`[PDF] Using Chrome at: ${executablePath}`);
 
     browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium",
+      executablePath,
       headless: true,
       timeout: 60000,
       args: [
@@ -57,7 +57,7 @@ exports.generate = async (resumeData) => {
         '--no-first-run',
         '--no-default-browser-check',
         '--no-zygote',
-        '--single-process',
+        '--single-process'
       ],
     });
 
