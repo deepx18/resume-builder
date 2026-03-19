@@ -63,8 +63,11 @@ exports.exportPdf = async (req, res) => {
   try {
     const resume = await Resume.findById(req.params.id);
     if (!resume) return res.status(404).json({ error: 'Resume not found' });
-
-    const pdfBuffer = await pdfService.generate(resume.toObject());
+    
+    console.log(resume.toObject());
+    console.log("Helo, world!");
+  
+    const pdfBuffer = await pdfService.generate(resume.toObject()); 
 
     const name = resume.personalInfo?.name
       ? resume.personalInfo.name.replace(/\s+/g, '_')

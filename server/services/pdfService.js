@@ -7,32 +7,32 @@ function findChrome() {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
 
   const candidates = [
-    '/usr/bin/chromium-browser',
     '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
     '/usr/bin/google-chrome',
     '/usr/bin/google-chrome-stable',
-    '/snap/bin/chromium',
-    '/usr/lib/chromium-browser/chromium-browser',
-    '/usr/lib/chromium/chromium',
+    '/usr/bin/google-chrome-beta',
+    '/opt/google/chrome/chrome',
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '/Applications/Chromium.app/Contents/MacOS/Chromium',
     '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe',
+    '/snap/bin/chromium',
   ];
 
   for (const p of candidates) {
     try { if (fs.existsSync(p)) return p; } catch {}
   }
 
-  for (const bin of ['chromium-browser', 'chromium', 'google-chrome', 'google-chrome-stable']) {
+  for (const bin of ['chromium', 'google-chrome', 'google-chrome-stable', 'chromium-browser']) {
     try {
       const found = execSync(`which ${bin} 2>/dev/null`).toString().trim();
-      if (found) return found;
+      if (found && !found.includes('/snap/')) return found;
     } catch {}
   }
 
   throw new Error(
-    'Chrome/Chromium not found. Install it with:\n' +
-    '  sudo apt install -y chromium-browser\n' +
+    'No compatible Chrome/Chromium found.\n' +
+    'Install: sudo apt install -y chromium\n' +
     'Or set CHROME_PATH in server/.env'
   );
 }
@@ -53,23 +53,35 @@ exports.generate = async (resumeData) => {
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--disable-software-rasterizer',
+        '--disable-extensions',
+        '--no-first-run',
+        '--no-default-browser-check',
         '--no-zygote',
         '--single-process',
       ],
     });
 
     const page = await browser.newPage();
-    await page.setContent(buildHtml(resumeData), {
-      waitUntil: 'domcontentloaded',
-      timeout: 30000,
-    });
+
+    // Set a real viewport so layout is calculated correctly
+    await page.setViewport({ width: 794, height: 1123 });
+
+    const html = buildHtml(resumeData);
+
+    // Use setContent then wait for the load event to ensure full render
+    await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
+
+    // Small delay to let any synchronous JS/CSS finish painting
+    await new Promise(r => setTimeout(r, 300));
 
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
+      preferCSSPageSize: false,
       margin: { top: '15mm', bottom: '15mm', left: '12mm', right: '12mm' },
     });
 
+    console.log(`[PDF] Generated successfully, size: ${pdf.length} bytes`);
     return pdf;
   } finally {
     if (browser) await browser.close();
