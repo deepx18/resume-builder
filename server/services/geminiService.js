@@ -2,6 +2,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 function getClient() {
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not set');
+  console.log('shit');
+  
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 
@@ -10,7 +12,7 @@ function getClient() {
  */
 exports.getSuggestions = async (jobRole, context = '') => {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
   const prompt = `
 You are a professional resume writer with 10+ years of experience.
@@ -38,7 +40,7 @@ Example format: ["Built REST APIs with Node.js and Express serving 10k+ requests
  */
 exports.improveSummary = async (summary, jobRole = '') => {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
   const prompt = `
 You are a professional resume writer.

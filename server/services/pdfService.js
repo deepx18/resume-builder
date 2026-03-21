@@ -38,6 +38,7 @@ function findChrome() {
 }
 
 exports.generate = async (resumeData) => {
+  console.log("shit");
   let browser;
   try {
     const executablePath = findChrome();
@@ -82,7 +83,10 @@ exports.generate = async (resumeData) => {
     });
 
     console.log(`[PDF] Generated successfully, size: ${pdf.length} bytes`);
+<<<<<<< HEAD
     // return pdf;
+=======
+>>>>>>> abderrahmane
     return Buffer.from(pdf);
   } finally {
     if (browser) await browser.close();
