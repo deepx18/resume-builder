@@ -1,6 +1,10 @@
-const express = require('express');
-const router  = express.Router();
-const ctrl    = require('../controllers/resumeController');
+const express     = require('express');
+const router      = express.Router();
+const ctrl        = require('../controllers/resumeController');
+const requireAuth = require('../middleware/requireAuth');
+
+// All resume routes require authentication
+router.use(requireAuth);
 
 router.get('/',        ctrl.getAll);
 router.post('/',       ctrl.create);

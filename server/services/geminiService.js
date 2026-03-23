@@ -2,8 +2,6 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 function getClient() {
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not set');
-  console.log('shit');
-  
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 

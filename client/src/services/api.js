@@ -1,9 +1,7 @@
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  timeout: 30000,
-})
+// Re-export the shared axios instance that already handles auth token injection
+// and silent refresh. All other services import from here.
+export { api as default } from '../context/AuthContext'
+import { api } from '../context/AuthContext'
 
 // Resumes
 export const getAllResumes  = ()         => api.get('/resumes')
@@ -19,5 +17,3 @@ export const getAiSuggestions = (jobRole, context = '') =>
 
 export const improveAiSummary = (summary, jobRole = '') =>
   api.post('/ai/improve', { summary, jobRole })
-
-export default api

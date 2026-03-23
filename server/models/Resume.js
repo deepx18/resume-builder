@@ -20,13 +20,21 @@ const ExperienceSchema = new mongoose.Schema({
 }, { _id: true });
 
 const ProjectSchema = new mongoose.Schema({
-  name:        { type: String, default: '' },
-  description: { type: String, default: '' },
-  technologies:{ type: String, default: '' },
-  link:        { type: String, default: '' },
+  name:         { type: String, default: '' },
+  description:  { type: String, default: '' },
+  technologies: { type: String, default: '' },
+  link:         { type: String, default: '' },
 }, { _id: true });
 
 const ResumeSchema = new mongoose.Schema({
+  // ── Auth: every resume is owned by a user ──────────────────────────────────
+  owner: {
+    type:     mongoose.Schema.Types.ObjectId,
+    ref:      'User',
+    required: true,
+    index:    true,
+  },
+
   title: { type: String, default: 'Untitled Resume' },
 
   personalInfo: {
@@ -44,7 +52,7 @@ const ResumeSchema = new mongoose.Schema({
   skills:     [{ type: String }],
   projects:   [ProjectSchema],
 
-  template:   { type: String, default: 'classic' },
+  template: { type: String, default: 'classic' },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Resume', ResumeSchema);
