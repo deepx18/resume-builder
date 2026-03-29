@@ -5,9 +5,18 @@ function getClient() {
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 
+<<<<<<< HEAD
 exports.getSuggestions = async (jobRole, context = '') => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+=======
+/**
+ * Generate resume bullet points for a given job role.
+ */
+exports.getSuggestions = async (jobRole, context = '') => {
+  const genAI = getClient();
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
   const prompt = `
 You are a professional resume writer with 10+ years of experience.
@@ -30,9 +39,18 @@ Example format: ["Built REST APIs with Node.js and Express serving 10k+ requests
   return JSON.parse(clean);
 };
 
+<<<<<<< HEAD
 exports.improveSummary = async (summary, jobRole = '') => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+=======
+/**
+ * Improve/rewrite a professional summary.
+ */
+exports.improveSummary = async (summary, jobRole = '') => {
+  const genAI = getClient();
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
   const prompt = `
 You are a professional resume writer.

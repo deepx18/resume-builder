@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -24,6 +25,12 @@ export default function Navbar() {
     await logout()
     navigate('/login')
   }
+=======
+import { Link, useNavigate } from 'react-router-dom'
+
+export default function Navbar() {
+  const navigate = useNavigate()
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
   return (
     <nav className="navbar">
@@ -35,6 +42,7 @@ export default function Navbar() {
           <line x1="16" y1="17" x2="8" y2="17"/>
           <polyline points="10 9 9 9 8 9"/>
         </svg>
+<<<<<<< HEAD
         {t.nav.brand}
       </Link>
 
@@ -106,10 +114,23 @@ export default function Navbar() {
             <button className="btn btn-primary btn-sm" onClick={() => navigate('/register')}>{t.nav.getStarted}</button>
           </>
         )}
+=======
+        ResumeBuilder
+      </Link>
+
+      <div className="navbar-actions">
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => navigate('/editor')}
+        >
+          + New Resume
+        </button>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
       </div>
     </nav>
   )
 }
+<<<<<<< HEAD
 
 function Avatar({ user }) {
   if (user.avatar) {
@@ -155,3 +176,5 @@ function MenuItem({ icon, label, onClick, danger }) {
     </button>
   )
 }
+=======
+>>>>>>> 1b585c7 (Ready, Set, Go!)

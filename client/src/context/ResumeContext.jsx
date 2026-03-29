@@ -2,7 +2,10 @@ import { createContext, useContext, useState, useCallback } from 'react'
 
 export const defaultResume = {
   title: 'My Resume',
+<<<<<<< HEAD
   lang:  'en',   // persisted with the resume so PDF matches the editing language
+=======
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   personalInfo: {
     name: '', email: '', phone: '',
     location: '', website: '', linkedin: '', summary: '',
@@ -17,11 +20,22 @@ export const defaultResume = {
 const ResumeContext = createContext(null)
 
 export function ResumeProvider({ children }) {
+<<<<<<< HEAD
   const [resume, setResume] = useState(defaultResume)
   const [saved,  setSaved]  = useState(true)
 
   const updatePersonalInfo = useCallback((field, value) => {
     setResume(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, [field]: value } }))
+=======
+  const [resume, setResume]   = useState(defaultResume)
+  const [saved,  setSaved]    = useState(true)
+
+  const updatePersonalInfo = useCallback((field, value) => {
+    setResume(prev => ({
+      ...prev,
+      personalInfo: { ...prev.personalInfo, [field]: value },
+    }))
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     setSaved(false)
   }, [])
 
@@ -30,7 +44,11 @@ export function ResumeProvider({ children }) {
     setSaved(false)
   }, [])
 
+<<<<<<< HEAD
   // Education
+=======
+  // Education helpers
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   const addEducation = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -53,11 +71,22 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeEducation = useCallback((index) => {
+<<<<<<< HEAD
     setResume(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
   // Experience
+=======
+    setResume(prev => ({
+      ...prev,
+      education: prev.education.filter((_, i) => i !== index),
+    }))
+    setSaved(false)
+  }, [])
+
+  // Experience helpers
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   const addExperience = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -80,10 +109,21 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeExperience = useCallback((index) => {
+<<<<<<< HEAD
     setResume(prev => ({ ...prev, experience: prev.experience.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
+=======
+    setResume(prev => ({
+      ...prev,
+      experience: prev.experience.filter((_, i) => i !== index),
+    }))
+    setSaved(false)
+  }, [])
+
+  // Bullet helpers for experience
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   const updateBullet = useCallback((expIndex, bulletIndex, value) => {
     setResume(prev => {
       const arr = [...prev.experience]
@@ -107,25 +147,53 @@ export function ResumeProvider({ children }) {
   const removeBullet = useCallback((expIndex, bulletIndex) => {
     setResume(prev => {
       const arr = [...prev.experience]
+<<<<<<< HEAD
       arr[expIndex] = { ...arr[expIndex], bullets: arr[expIndex].bullets.filter((_, i) => i !== bulletIndex) }
+=======
+      arr[expIndex] = {
+        ...arr[expIndex],
+        bullets: arr[expIndex].bullets.filter((_, i) => i !== bulletIndex),
+      }
+>>>>>>> 1b585c7 (Ready, Set, Go!)
       return { ...prev, experience: arr }
     })
     setSaved(false)
   }, [])
 
+<<<<<<< HEAD
   // Skills
   const addSkill = useCallback((skill) => {
     if (!skill.trim()) return
     setResume(prev => ({ ...prev, skills: [...prev.skills, skill.trim()] }))
+=======
+  // Skills helpers
+  const addSkill = useCallback((skill) => {
+    if (!skill.trim()) return
+    setResume(prev => ({
+      ...prev,
+      skills: [...prev.skills, skill.trim()],
+    }))
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     setSaved(false)
   }, [])
 
   const removeSkill = useCallback((index) => {
+<<<<<<< HEAD
     setResume(prev => ({ ...prev, skills: prev.skills.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
   // Projects
+=======
+    setResume(prev => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index),
+    }))
+    setSaved(false)
+  }, [])
+
+  // Projects helpers
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   const addProject = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -147,7 +215,14 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeProject = useCallback((index) => {
+<<<<<<< HEAD
     setResume(prev => ({ ...prev, projects: prev.projects.filter((_, i) => i !== index) }))
+=======
+    setResume(prev => ({
+      ...prev,
+      projects: prev.projects.filter((_, i) => i !== index),
+    }))
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     setSaved(false)
   }, [])
 

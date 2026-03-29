@@ -1,4 +1,5 @@
 import { useState } from 'react'
+<<<<<<< HEAD
 import { useLang } from '../../context/LanguageContext'
 import PersonalInfo      from './PersonalInfo'
 import EducationSection  from './EducationSection'
@@ -18,6 +19,25 @@ export default function ResumeForm() {
     { key: 'projects',   label: t.tabs.projects    },
   ]
 
+=======
+import PersonalInfo   from './PersonalInfo'
+import EducationSection from './EducationSection'
+import ExperienceSection from './ExperienceSection'
+import SkillsSection   from './SkillsSection'
+import ProjectsSection from './ProjectsSection'
+
+const TABS = [
+  { key: 'personal',    label: '👤 Personal'   },
+  { key: 'experience',  label: '💼 Experience'  },
+  { key: 'education',   label: '🎓 Education'   },
+  { key: 'skills',      label: '🛠 Skills'       },
+  { key: 'projects',    label: '🚀 Projects'    },
+]
+
+export default function ResumeForm() {
+  const [active, setActive] = useState('personal')
+
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   return (
     <div>
       {/* Tab bar */}
@@ -31,10 +51,17 @@ export default function ResumeForm() {
         borderRadius: 'var(--radius)',
         padding: 4,
       }}>
+<<<<<<< HEAD
         {TABS.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActive(tab.key)}
+=======
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setActive(t.key)}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
             style={{
               flex: 1,
               padding: '7px 8px',
@@ -43,17 +70,30 @@ export default function ResumeForm() {
               fontSize: 12,
               fontWeight: 500,
               cursor: 'pointer',
+<<<<<<< HEAD
               background: active === tab.key ? 'var(--primary)' : 'transparent',
               color:      active === tab.key ? '#fff' : 'var(--text-muted)',
+=======
+              background: active === t.key ? 'var(--primary)' : 'transparent',
+              color:      active === t.key ? '#fff' : 'var(--text-muted)',
+>>>>>>> 1b585c7 (Ready, Set, Go!)
               transition: 'all .15s',
               whiteSpace: 'nowrap',
             }}
           >
+<<<<<<< HEAD
             {tab.label}
+=======
+            {t.label}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
           </button>
         ))}
       </div>
 
+<<<<<<< HEAD
+=======
+      {/* Active section */}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
       {active === 'personal'   && <PersonalInfo />}
       {active === 'experience' && <ExperienceSection />}
       {active === 'education'  && <EducationSection />}

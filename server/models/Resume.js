@@ -20,6 +20,7 @@ const ExperienceSchema = new mongoose.Schema({
 }, { _id: true });
 
 const ProjectSchema = new mongoose.Schema({
+<<<<<<< HEAD
   name:         { type: String, default: '' },
   description:  { type: String, default: '' },
   technologies: { type: String, default: '' },
@@ -39,6 +40,17 @@ const ResumeSchema = new mongoose.Schema({
   // Language used when this resume was last saved — drives PDF section labels
   lang: { type: String, default: 'en', enum: ['en', 'fr', 'ar', 'es'] },
 
+=======
+  name:        { type: String, default: '' },
+  description: { type: String, default: '' },
+  technologies:{ type: String, default: '' },
+  link:        { type: String, default: '' },
+}, { _id: true });
+
+const ResumeSchema = new mongoose.Schema({
+  title: { type: String, default: 'Untitled Resume' },
+
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   personalInfo: {
     name:     { type: String, default: '' },
     email:    { type: String, default: '' },
@@ -54,7 +66,11 @@ const ResumeSchema = new mongoose.Schema({
   skills:     [{ type: String }],
   projects:   [ProjectSchema],
 
+<<<<<<< HEAD
   template: { type: String, default: 'classic' },
+=======
+  template:   { type: String, default: 'classic' },
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 }, { timestamps: true });
 
 module.exports = mongoose.model('Resume', ResumeSchema);

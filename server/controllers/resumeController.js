@@ -4,9 +4,13 @@ const pdfService = require('../services/pdfService');
 // GET /api/resumes
 exports.getAll = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resumes = await Resume.find({ owner: req.user.sub })
       .select('title updatedAt createdAt lang')
       .sort('-updatedAt');
+=======
+    const resumes = await Resume.find().select('title updatedAt createdAt').sort('-updatedAt');
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     res.json(resumes);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -16,8 +20,13 @@ exports.getAll = async (req, res) => {
 // GET /api/resumes/:id
 exports.getOne = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resume = await Resume.findOne({ _id: req.params.id, owner: req.user.sub });
     if (!resume) return res.status(404).json({ error: 'Resume not found.' });
+=======
+    const resume = await Resume.findById(req.params.id);
+    if (!resume) return res.status(404).json({ error: 'Resume not found' });
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     res.json(resume);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -27,7 +36,11 @@ exports.getOne = async (req, res) => {
 // POST /api/resumes
 exports.create = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resume = await Resume.create({ ...req.body, owner: req.user.sub });
+=======
+    const resume = await Resume.create(req.body);
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     res.status(201).json(resume);
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -37,12 +50,21 @@ exports.create = async (req, res) => {
 // PUT /api/resumes/:id
 exports.update = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resume = await Resume.findOneAndUpdate(
       { _id: req.params.id, owner: req.user.sub },
       { ...req.body, updatedAt: new Date() },
       { new: true, runValidators: true }
     );
     if (!resume) return res.status(404).json({ error: 'Resume not found.' });
+=======
+    const resume = await Resume.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+    if (!resume) return res.status(404).json({ error: 'Resume not found' });
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     res.json(resume);
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -52,9 +74,15 @@ exports.update = async (req, res) => {
 // DELETE /api/resumes/:id
 exports.remove = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resume = await Resume.findOneAndDelete({ _id: req.params.id, owner: req.user.sub });
     if (!resume) return res.status(404).json({ error: 'Resume not found.' });
     res.json({ message: 'Resume deleted successfully.' });
+=======
+    const resume = await Resume.findByIdAndDelete(req.params.id);
+    if (!resume) return res.status(404).json({ error: 'Resume not found' });
+    res.json({ message: 'Resume deleted successfully' });
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -63,11 +91,19 @@ exports.remove = async (req, res) => {
 // GET /api/resumes/:id/pdf
 exports.exportPdf = async (req, res) => {
   try {
+<<<<<<< HEAD
     const resume = await Resume.findOne({ _id: req.params.id, owner: req.user.sub });
     if (!resume) return res.status(404).json({ error: 'Resume not found.' });
 
     // Pass lang so the template renders localised section headings
     const pdfBuffer = await pdfService.generate(resume.toObject());
+=======
+    const resume = await Resume.findById(req.params.id);
+    if (!resume) return res.status(404).json({ error: 'Resume not found' });
+
+    const pdfBuffer = await pdfService.generate(resume.toObject());
+
+>>>>>>> 1b585c7 (Ready, Set, Go!)
     const name = resume.personalInfo?.name
       ? resume.personalInfo.name.replace(/\s+/g, '_')
       : 'resume';

@@ -1,5 +1,8 @@
 import { useResume } from '../../context/ResumeContext'
+<<<<<<< HEAD
 import { useLang }   from '../../context/LanguageContext'
+=======
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
 const sectionTitle = {
   fontSize: 11,
@@ -13,6 +16,7 @@ const sectionTitle = {
   marginTop: 16,
 }
 
+<<<<<<< HEAD
 const entryTitle = { fontWeight: 600, fontSize: 12, color: '#111' }
 const entryMeta  = { fontSize: 11, color: '#555' }
 const dateStyle  = { fontSize: 10.5, color: '#888', marginInlineStart: 'auto', whiteSpace: 'nowrap' }
@@ -21,6 +25,14 @@ export default function ResumePreview() {
   const { resume: r } = useResume()
   const { t, dir }    = useLang()
 
+=======
+const entryTitle  = { fontWeight: 600, fontSize: 12, color: '#111' }
+const entryMeta   = { fontSize: 11, color: '#555' }
+const dateStyle   = { fontSize: 10.5, color: '#888', marginLeft: 'auto', whiteSpace: 'nowrap' }
+
+export default function ResumePreview() {
+  const { resume: r } = useResume()
+>>>>>>> 1b585c7 (Ready, Set, Go!)
   const p  = r.personalInfo || {}
   const ed = r.education    || []
   const ex = r.experience   || []
@@ -30,7 +42,11 @@ export default function ResumePreview() {
   const contactParts = [p.email, p.phone, p.location, p.website, p.linkedin].filter(Boolean)
 
   return (
+<<<<<<< HEAD
     <div style={{ fontFamily: dir === 'rtl' ? "'Segoe UI', Tahoma, Arial, sans-serif" : "'Segoe UI', Arial, sans-serif", fontSize: 12, lineHeight: 1.55, color: '#1a1a1a', direction: dir }}>
+=======
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: 12, lineHeight: 1.55, color: '#1a1a1a' }}>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: 12, borderBottom: '2px solid #2563eb', marginBottom: 14 }}>
@@ -57,7 +73,11 @@ export default function ResumePreview() {
       {/* Experience */}
       {ex.length > 0 && (
         <div>
+<<<<<<< HEAD
           <div style={sectionTitle}>{t.pdf.experience}</div>
+=======
+          <div style={sectionTitle}>Experience</div>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
           {ex.map((e, i) => (
             <div key={i} style={{ marginBottom: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 4 }}>
@@ -66,7 +86,11 @@ export default function ResumePreview() {
                   {e.company && <span style={entryMeta}> — {e.company}{e.location ? `, ${e.location}` : ''}</span>}
                 </div>
                 <span style={dateStyle}>
+<<<<<<< HEAD
                   {e.startDate}{e.startDate && ' – '}{e.current ? t.pdf.present : e.endDate}
+=======
+                  {e.startDate}{e.startDate && ' – '}{e.current ? 'Present' : e.endDate}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
                 </span>
               </div>
               {(e.bullets || []).filter(b => b.trim()).length > 0 && (
@@ -84,7 +108,11 @@ export default function ResumePreview() {
       {/* Education */}
       {ed.length > 0 && (
         <div>
+<<<<<<< HEAD
           <div style={sectionTitle}>{t.pdf.education}</div>
+=======
+          <div style={sectionTitle}>Education</div>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
           {ed.map((e, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 4 }}>
@@ -98,7 +126,11 @@ export default function ResumePreview() {
                   {e.startDate}{e.startDate && ' – '}{e.endDate}
                 </span>
               </div>
+<<<<<<< HEAD
               {e.gpa && <div style={{ fontSize: 10.5, color: '#555', marginTop: 1 }}>{t.pdf.gpa}: {e.gpa}</div>}
+=======
+              {e.gpa && <div style={{ fontSize: 10.5, color: '#555', marginTop: 1 }}>GPA: {e.gpa}</div>}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
             </div>
           ))}
         </div>
@@ -107,7 +139,11 @@ export default function ResumePreview() {
       {/* Skills */}
       {sk.length > 0 && (
         <div>
+<<<<<<< HEAD
           <div style={sectionTitle}>{t.pdf.skills}</div>
+=======
+          <div style={sectionTitle}>Skills</div>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {sk.map((s, i) => (
               <span key={i} style={{
@@ -124,7 +160,11 @@ export default function ResumePreview() {
       {/* Projects */}
       {pr.length > 0 && (
         <div>
+<<<<<<< HEAD
           <div style={sectionTitle}>{t.pdf.projects}</div>
+=======
+          <div style={sectionTitle}>Projects</div>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
           {pr.map((proj, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -133,7 +173,11 @@ export default function ResumePreview() {
               </div>
               {proj.technologies && (
                 <div style={{ fontSize: 10.5, color: '#555', marginTop: 1 }}>
+<<<<<<< HEAD
                   <strong>{t.pdf.tech}:</strong> {proj.technologies}
+=======
+                  <strong>Tech:</strong> {proj.technologies}
+>>>>>>> 1b585c7 (Ready, Set, Go!)
                 </div>
               )}
               {proj.description && (
@@ -148,8 +192,13 @@ export default function ResumePreview() {
       {!p.name && ex.length === 0 && ed.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>📄</div>
+<<<<<<< HEAD
           <div style={{ fontSize: 13 }}>{t.preview.emptyTitle}</div>
           <div style={{ fontSize: 11, marginTop: 4 }}>{t.preview.emptyHint}</div>
+=======
+          <div style={{ fontSize: 13 }}>Your resume preview will appear here</div>
+          <div style={{ fontSize: 11, marginTop: 4 }}>Start filling in the form on the left</div>
+>>>>>>> 1b585c7 (Ready, Set, Go!)
         </div>
       )}
     </div>

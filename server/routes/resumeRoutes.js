@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 const express     = require('express');
 const router      = express.Router();
 const ctrl        = require('../controllers/resumeController');
 const requireAuth = require('../middleware/requireAuth');
 
 router.use(requireAuth);
+=======
+const express = require('express');
+const router  = express.Router();
+const ctrl    = require('../controllers/resumeController');
+>>>>>>> 1b585c7 (Ready, Set, Go!)
 
 router.get('/',        ctrl.getAll);
 router.post('/',       ctrl.create);
