@@ -11,45 +11,25 @@ export default function ResumeForm() {
   const [active, setActive] = useState('personal')
 
   const TABS = [
-    { key: 'personal',   label: t.tabs.personal   },
-    { key: 'experience', label: t.tabs.experience  },
-    { key: 'education',  label: t.tabs.education   },
-    { key: 'skills',     label: t.tabs.skills      },
-    { key: 'projects',   label: t.tabs.projects    },
+    { key: 'personal',   label: t.tabs.personal,   icon: 'person' },
+    { key: 'experience', label: t.tabs.experience, icon: 'work' },
+    { key: 'education',  label: t.tabs.education,  icon: 'school' },
+    { key: 'skills',     label: t.tabs.skills,     icon: 'construction' },
+    { key: 'projects',   label: t.tabs.projects,   icon: 'folder_special' },
   ]
 
   return (
     <div>
       {/* Tab bar */}
-      <div style={{
-        display: 'flex',
-        gap: 4,
-        flexWrap: 'wrap',
-        marginBottom: 20,
-        background: 'var(--bg-white)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius)',
-        padding: 4,
-      }}>
+      <div className="resume-section-tabs">
         {TABS.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActive(tab.key)}
-            style={{
-              flex: 1,
-              padding: '7px 8px',
-              border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: 12,
-              fontWeight: 500,
-              cursor: 'pointer',
-              background: active === tab.key ? 'var(--primary)' : 'transparent',
-              color:      active === tab.key ? '#fff' : 'var(--text-muted)',
-              transition: 'all .15s',
-              whiteSpace: 'nowrap',
-            }}
+            className={active === tab.key ? 'active' : ''}
           >
-            {tab.label}
+            <span className="material-symbols-outlined">{tab.icon}</span>
+            <span>{tab.label.replace(/^[^\p{L}\p{N}]+/u, '')}</span>
           </button>
         ))}
       </div>

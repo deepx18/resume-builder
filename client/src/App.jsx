@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { ResumeProvider }  from './context/ResumeContext'
 import { AuthProvider }    from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
@@ -10,12 +10,15 @@ import LoginPage    from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
 export default function App() {
+  const location = useLocation()
+  const isEditor = location.pathname.startsWith('/editor')
+
   return (
     <LanguageProvider>
       <AuthProvider>
         <ResumeProvider>
           <div className="app-shell">
-            <Navbar />
+            {!isEditor && <Navbar />}
             <main className="main-content">
               <Routes>
                 {/* Public */}

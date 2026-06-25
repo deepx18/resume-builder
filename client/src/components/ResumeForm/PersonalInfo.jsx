@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useResume } from '../../context/ResumeContext'
 import { useLang }   from '../../context/LanguageContext'
-import { improveAiSummary } from '../../services/api'
+import { improveAiSummary } from '../../services/api.js'
 
 export default function PersonalInfo() {
   const { resume, updatePersonalInfo } = useResume()
@@ -26,12 +26,13 @@ export default function PersonalInfo() {
     if (!p.summary) return
     setImproving(true)
     try {
-      const { data } = await improveAiSummary(p.summary, '')
-      updatePersonalInfo('summary', data.improved)
-    } catch {
-      alert(t.personal.aiError)
+        const { data } = await improveAiSummary(p.summary, '')
+        updatePersonalInfo('summary', data.improved)
+    } catch (e) {
+        console.log(e);
+        alert(t.personal.aiError)
     } finally {
-      setImproving(false)
+        setImproving(false)
     }
   }
 

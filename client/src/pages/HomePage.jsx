@@ -1,15 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllResumes, deleteResume } from '../services/api'
-import { useResume } from '../context/ResumeContext'
-import { defaultResume } from '../context/ResumeContext'
+import { useResume, defaultResume } from '../context/ResumeContext'
 import { useLang } from '../context/LanguageContext'
 
+const templateAccent = {
+  classic: '#2563eb',
+  modern: '#1e3a5f',
+  minimal: '#111827',
+  executive: '#b7860b',
+  creative: '#0d9488',
+}
+
 export default function HomePage() {
-  const [resumes,  setResumes]  = useState([])
-  const [loading,  setLoading]  = useState(true)
+  const [resumes, setResumes] = useState([])
+  const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(null)
-  const navigate  = useNavigate()
+  const [query, setQuery] = useState('')
+  const navigate = useNavigate()
   const { setResume, setSaved } = useResume()
   const { t } = useLang()
 
@@ -26,6 +34,12 @@ export default function HomePage() {
     }
   }
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return resumes
+    return resumes.filter(r => (r.title || t.home.untitled).toLowerCase().includes(q))
+  }, [query, resumes, t.home.untitled])
+
   const handleNew = () => {
     setResume(defaultResume)
     setSaved(false)
@@ -34,13 +48,13 @@ export default function HomePage() {
 
   const handleEdit = (id) => navigate(`/editor/${id}`)
 
-  const handleDelete = async (id, e) => {
+  const handleDelete = async (resume, e) => {
     e.stopPropagation()
-    if (!window.confirm(t.home.deleteConfirm)) return
-    setDeleting(id)
+    if (!window.confirm(`${t.home.deleteConfirm}\n${resume.title || t.home.untitled}`)) return
+    setDeleting(resume._id)
     try {
-      await deleteResume(id)
-      setResumes(prev => prev.filter(r => r._id !== id))
+      await deleteResume(resume._id)
+      setResumes(prev => prev.filter(r => r._id !== resume._id))
     } catch {
       alert(t.home.deleteError)
     } finally {
@@ -52,81 +66,125 @@ export default function HomePage() {
     new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
-      {/* Hero */}
-      <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+    <div className="dashboard-page">
+      <section className="dashboard-header">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 6 }}>{t.home.title}</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>{t.home.subtitle}</p>
+          <h1>{t.home.title}</h1>
+          <p>{t.home.subtitle} {resumes.length > 0 && `(${resumes.length} total)`}</p>
         </div>
-        <button className="btn btn-primary" onClick={handleNew}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          {t.home.newResume}
-        </button>
-      </div>
+
+        <div className="dashboard-tools">
+          <label className="search-field">
+            <span className="material-symbols-outlined">search</span>
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search resumes..."
+            />
+          </label>
+          <button className="btn btn-primary" onClick={handleNew}>
+            <span className="material-symbols-outlined">add</span>
+            {t.home.newResume}
+          </button>
+        </div>
+      </section>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--text-muted)' }}>{t.home.loading}</div>
-      ) : resumes.length === 0 ? (
-        <div className="empty-state card">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          <h3>{t.home.noResumes}</h3>
-          <p>{t.home.noResumesHint}</p>
+        <div className="resume-grid">
+          {[0, 1, 2, 3].map(i => <ResumeSkeleton key={i} />)}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="empty-state dashboard-empty">
+          <span className="material-symbols-outlined">description</span>
+          <h3>{resumes.length ? 'No matching resumes' : t.home.noResumes}</h3>
+          <p>{resumes.length ? 'Try a different search term.' : t.home.noResumesHint}</p>
+          {!resumes.length && (
+            <button className="btn btn-primary" onClick={handleNew}>
+              <span className="material-symbols-outlined">add</span>
+              {t.home.newResume}
+            </button>
+          )}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
-          {resumes.map(r => (
-            <div
-              key={r._id}
-              className="card"
-              onClick={() => handleEdit(r._id)}
-              style={{ cursor: 'pointer', transition: 'box-shadow .15s', position: 'relative' }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-lg)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow)'}
+        <div className="resume-grid">
+          {filtered.map((resume, index) => (
+            <article
+              key={resume._id}
+              className="resume-card"
+              onClick={() => handleEdit(resume._id)}
             >
-              <div style={{
-                width: 44, height: 44, background: 'var(--primary-light)',
-                borderRadius: 'var(--radius)', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', marginBottom: 12,
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                </svg>
+              <div className="resume-card-preview">
+                <MiniResume resume={resume} index={index} />
+                <div className="resume-card-overlay">
+                  <button className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); handleEdit(resume._id) }}>
+                    {t.home.edit}
+                  </button>
+                </div>
               </div>
-              <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>
-                {r.title || t.home.untitled}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-                {t.home.updated} {fmtDate(r.updatedAt)}
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+
+              <div className="resume-card-body">
+                <div>
+                  <h2>{resume.title || t.home.untitled}</h2>
+                  <p>
+                    <span className="material-symbols-outlined">schedule</span>
+                    {t.home.updated} {fmtDate(resume.updatedAt)}
+                  </p>
+                </div>
                 <button
-                  className="btn btn-ghost btn-sm"
-                  style={{ flex: 1 }}
-                  onClick={(e) => { e.stopPropagation(); handleEdit(r._id) }}
+                  className="icon-button danger"
+                  disabled={deleting === resume._id}
+                  onClick={(e) => handleDelete(resume, e)}
+                  title="Delete resume"
                 >
-                  {t.home.edit}
-                </button>
-                <button
-                  className="btn btn-danger btn-sm"
-                  disabled={deleting === r._id}
-                  onClick={(e) => handleDelete(r._id, e)}
-                >
-                  {deleting === r._id ? '…' : '🗑'}
+                  <span className="material-symbols-outlined">{deleting === resume._id ? 'hourglass_empty' : 'delete'}</span>
                 </button>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
+
+      <button className="mobile-fab" onClick={handleNew} title={t.home.newResume}>
+        <span className="material-symbols-outlined">add</span>
+      </button>
+    </div>
+  )
+}
+
+function ResumeSkeleton() {
+  return (
+    <div className="resume-card skeleton-card">
+      <div className="resume-card-preview skeleton" />
+      <div className="resume-card-body">
+        <div className="skeleton-lines">
+          <span />
+          <small />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MiniResume({ resume, index }) {
+  const accent = templateAccent[resume.template] || ['#2563eb', '#0d9488', '#b7860b', '#1e3a5f'][index % 4]
+  return (
+    <div className="mini-resume" style={{ '--mini-accent': accent }}>
+      <div className="mini-resume-header">
+        <span />
+        <strong />
+      </div>
+      <div className="mini-resume-section wide" />
+      <div className="mini-resume-lines">
+        <span /><span /><span />
+      </div>
+      <div className="mini-resume-section" />
+      <div className="mini-resume-entry">
+        <strong /><span /><span />
+      </div>
+      <div className="mini-resume-section short" />
+      <div className="mini-resume-chips">
+        <span /><span /><span />
+      </div>
     </div>
   )
 }
