@@ -91,7 +91,7 @@ export default function TemplatePicker({ onClose }) {
                   borderRadius: 'var(--radius)',
                   background: isActive ? `${tmpl.accent}10` : 'var(--bg-white)',
                   cursor: 'pointer',
-                  padding: 0,
+                  padding: "5px 25px",
                   overflow: 'hidden',
                   transition: 'border-color .15s, box-shadow .15s',
                   boxShadow: isActive ? `0 0 0 3px ${tmpl.accent}30` : 'none',
