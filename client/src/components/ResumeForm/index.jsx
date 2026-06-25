@@ -1,20 +1,22 @@
 import { useState } from 'react'
-import PersonalInfo   from './PersonalInfo'
-import EducationSection from './EducationSection'
+import { useLang } from '../../context/LanguageContext'
+import PersonalInfo      from './PersonalInfo'
+import EducationSection  from './EducationSection'
 import ExperienceSection from './ExperienceSection'
-import SkillsSection   from './SkillsSection'
-import ProjectsSection from './ProjectsSection'
-
-const TABS = [
-  { key: 'personal',    label: '👤 Personal'   },
-  { key: 'experience',  label: '💼 Experience'  },
-  { key: 'education',   label: '🎓 Education'   },
-  { key: 'skills',      label: '🛠 Skills'       },
-  { key: 'projects',    label: '🚀 Projects'    },
-]
+import SkillsSection     from './SkillsSection'
+import ProjectsSection   from './ProjectsSection'
 
 export default function ResumeForm() {
+  const { t } = useLang()
   const [active, setActive] = useState('personal')
+
+  const TABS = [
+    { key: 'personal',   label: t.tabs.personal   },
+    { key: 'experience', label: t.tabs.experience  },
+    { key: 'education',  label: t.tabs.education   },
+    { key: 'skills',     label: t.tabs.skills      },
+    { key: 'projects',   label: t.tabs.projects    },
+  ]
 
   return (
     <div>
@@ -29,10 +31,10 @@ export default function ResumeForm() {
         borderRadius: 'var(--radius)',
         padding: 4,
       }}>
-        {TABS.map(t => (
+        {TABS.map(tab => (
           <button
-            key={t.key}
-            onClick={() => setActive(t.key)}
+            key={tab.key}
+            onClick={() => setActive(tab.key)}
             style={{
               flex: 1,
               padding: '7px 8px',
@@ -41,18 +43,17 @@ export default function ResumeForm() {
               fontSize: 12,
               fontWeight: 500,
               cursor: 'pointer',
-              background: active === t.key ? 'var(--primary)' : 'transparent',
-              color:      active === t.key ? '#fff' : 'var(--text-muted)',
+              background: active === tab.key ? 'var(--primary)' : 'transparent',
+              color:      active === tab.key ? '#fff' : 'var(--text-muted)',
               transition: 'all .15s',
               whiteSpace: 'nowrap',
             }}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Active section */}
       {active === 'personal'   && <PersonalInfo />}
       {active === 'experience' && <ExperienceSection />}
       {active === 'education'  && <EducationSection />}

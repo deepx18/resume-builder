@@ -62,16 +62,10 @@ exports.generate = async (resumeData) => {
     });
 
     const page = await browser.newPage();
-
-    // Set a real viewport so layout is calculated correctly
     await page.setViewport({ width: 794, height: 1123 });
 
     const html = buildHtml(resumeData);
-
-    // Use setContent then wait for the load event to ensure full render
     await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
-
-    // Small delay to let any synchronous JS/CSS finish painting
     await new Promise(r => setTimeout(r, 300));
 
     const pdf = await page.pdf({
@@ -82,7 +76,6 @@ exports.generate = async (resumeData) => {
     });
 
     console.log(`[PDF] Generated successfully, size: ${pdf.length} bytes`);
-    // return pdf;
     return Buffer.from(pdf);
   } finally {
     if (browser) await browser.close();

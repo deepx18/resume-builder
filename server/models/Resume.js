@@ -27,7 +27,6 @@ const ProjectSchema = new mongoose.Schema({
 }, { _id: true });
 
 const ResumeSchema = new mongoose.Schema({
-  // ── Auth: every resume is owned by a user ──────────────────────────────────
   owner: {
     type:     mongoose.Schema.Types.ObjectId,
     ref:      'User',
@@ -36,6 +35,9 @@ const ResumeSchema = new mongoose.Schema({
   },
 
   title: { type: String, default: 'Untitled Resume' },
+
+  // Language used when this resume was last saved — drives PDF section labels
+  lang: { type: String, default: 'en', enum: ['en', 'fr', 'ar', 'es'] },
 
   personalInfo: {
     name:     { type: String, default: '' },

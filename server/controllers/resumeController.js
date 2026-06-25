@@ -1,11 +1,11 @@
 const Resume     = require('../models/Resume');
 const pdfService = require('../services/pdfService');
 
-// GET /api/resumes  — only the logged-in user's resumes
+// GET /api/resumes
 exports.getAll = async (req, res) => {
   try {
     const resumes = await Resume.find({ owner: req.user.sub })
-      .select('title updatedAt createdAt')
+      .select('title updatedAt createdAt lang')
       .sort('-updatedAt');
     res.json(resumes);
   } catch (e) {
@@ -66,6 +66,7 @@ exports.exportPdf = async (req, res) => {
     const resume = await Resume.findOne({ _id: req.params.id, owner: req.user.sub });
     if (!resume) return res.status(404).json({ error: 'Resume not found.' });
 
+    // Pass lang so the template renders localised section headings
     const pdfBuffer = await pdfService.generate(resume.toObject());
     const name = resume.personalInfo?.name
       ? resume.personalInfo.name.replace(/\s+/g, '_')

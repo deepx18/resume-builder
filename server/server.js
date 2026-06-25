@@ -12,20 +12,17 @@ const app = express();
 
 app.use(cors({
   origin:      process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,   // required for cookies
+  credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
-app.use(cookieParser());   // parse httpOnly refresh-token cookie
+app.use(cookieParser());
 
-// ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',    authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/ai',      aiRoutes);
 
-// Health check (public)
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-// ── Start ─────────────────────────────────────────────────────────────────────
 const PORT      = process.env.PORT      || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/resume-builder';
 

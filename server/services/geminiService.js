@@ -5,9 +5,6 @@ function getClient() {
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 }
 
-/**
- * Generate resume bullet points for a given job role.
- */
 exports.getSuggestions = async (jobRole, context = '') => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
@@ -33,9 +30,6 @@ Example format: ["Built REST APIs with Node.js and Express serving 10k+ requests
   return JSON.parse(clean);
 };
 
-/**
- * Improve/rewrite a professional summary.
- */
 exports.improveSummary = async (summary, jobRole = '') => {
   const genAI = getClient();
   const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });

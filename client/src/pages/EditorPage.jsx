@@ -1,27 +1,32 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useResume, defaultResume } from '../context/ResumeContext'
+import { useLang }  from '../context/LanguageContext'
 import { getResume, createResume, updateResume, downloadPdf } from '../services/api'
 import ResumeForm    from '../components/ResumeForm'
 import ResumePreview from '../components/ResumePreview'
+import TemplatePicker from '../components/TemplatePicker'
+import { TEMPLATE_MAP } from '../components/TemplatePicker/templates'
 
 export default function EditorPage() {
-  const { id }                        = useParams()
-  const navigate                       = useNavigate()
+  const { id }                         = useParams()
+  const navigate                        = useNavigate()
   const { resume, setResume, setSaved } = useResume()
+  const { t, lang } = useLang()
 
-  const [currentId, setCurrentId] = useState(id || null)
-  const [saving,    setSaving]    = useState(false)
-  const [exporting, setExporting] = useState(false)
-  const [toast,     setToast]     = useState(null)
-  const [activeTab, setActiveTab] = useState('form')  // 'form' | 'preview' (mobile)
+  const [currentId,       setCurrentId]       = useState(id || null)
+  const [saving,          setSaving]          = useState(false)
+  const [exporting,       setExporting]       = useState(false)
+  const [toast,           setToast]           = useState(null)
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false)
 
-  // Load existing resume
+  const currentTemplate = TEMPLATE_MAP[resume.template] || TEMPLATE_MAP['classic']
+
   useEffect(() => {
     if (id) {
       getResume(id)
         .then(({ data }) => { setResume(data); setSaved(true) })
-        .catch(() => { showToast('Resume not found', 'error'); navigate('/') })
+        .catch(() => { showToast(t.editor.notFound, 'error'); navigate('/') })
     } else {
       setResume(defaultResume)
       setSaved(false)
@@ -36,27 +41,25 @@ export default function EditorPage() {
   const handleSave = useCallback(async () => {
     setSaving(true)
     try {
+      const payload = { ...resume, lang }
       if (currentId) {
-        await updateResume(currentId, resume)
+        await updateResume(currentId, payload)
       } else {
-        const { data } = await createResume(resume)
+        const { data } = await createResume(payload)
         setCurrentId(data._id)
         navigate(`/editor/${data._id}`, { replace: true })
       }
       setSaved(true)
-      showToast('Resume saved!', 'success')
-    } catch (e) {
-      showToast('Failed to save. Is the server running?', 'error')
+      showToast(t.editor.saved, 'success')
+    } catch {
+      showToast(t.editor.saveError, 'error')
     } finally {
       setSaving(false)
     }
-  }, [resume, currentId, navigate])
+  }, [resume, currentId, navigate, t, lang])
 
   const handleDownload = useCallback(async () => {
-    if (!currentId) {
-      showToast('Save your resume first!', 'error')
-      return
-    }
+    if (!currentId) { showToast(t.editor.saveFirst, 'error'); return }
     setExporting(true)
     try {
       const { data } = await downloadPdf(currentId)
@@ -66,21 +69,17 @@ export default function EditorPage() {
       link.download = `${resume.personalInfo?.name?.replace(/\s+/g, '_') || 'resume'}.pdf`
       link.click()
       URL.revokeObjectURL(url)
-      showToast('PDF downloaded!')
-    } catch (e) {
-      showToast('PDF generation failed. Make sure Puppeteer is installed.', 'error')
+      showToast(t.editor.pdfSuccess)
+    } catch {
+      showToast(t.editor.pdfError, 'error')
     } finally {
       setExporting(false)
     }
-  }, [currentId, resume])
+  }, [currentId, resume, t])
 
-  // Keyboard shortcut: Ctrl+S
   useEffect(() => {
     const handler = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault()
-        handleSave()
-      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); handleSave() }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
@@ -89,113 +88,94 @@ export default function EditorPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}>
 
-      {/* Editor Toolbar */}
+      {/* Toolbar */}
       <div style={{
         background: 'var(--bg-white)',
         borderBottom: '1px solid var(--border)',
         padding: '10px 20px',
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        gap: 10,
         flexShrink: 0,
+        flexWrap: 'wrap',
       }}>
-        {/* Title */}
         <input
           value={resume.title}
           onChange={e => { setResume(prev => ({ ...prev, title: e.target.value })); setSaved(false) }}
-          style={{
-            border: 'none', outline: 'none', fontSize: 16,
-            fontWeight: 600, background: 'transparent', flex: 1, minWidth: 0,
-          }}
-          placeholder="Resume title…"
+          style={{ border: 'none', outline: 'none', fontSize: 16, fontWeight: 600, background: 'transparent', flex: 1, minWidth: 140 }}
+          placeholder={t.editor.titlePlaceholder}
         />
 
-        {/* Mobile tab toggle */}
-        <div className="mobile-tabs" style={{ display: 'flex', gap: 4 }}>
-          <button
-            className={`btn btn-sm ${activeTab === 'form' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('form')}
-            style={{ display: 'none' }}
-            data-mobile-tab="form"
-          >Form</button>
-          <button
-            className={`btn btn-sm ${activeTab === 'preview' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('preview')}
-            style={{ display: 'none' }}
-            data-mobile-tab="preview"
-          >Preview</button>
-        </div>
-
-        <span style={{ fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>
-          Ctrl+S to save
-        </span>
-
+        {/* Template badge + picker trigger */}
         <button
-          className="btn btn-secondary btn-sm"
-          onClick={() => navigate('/')}
+          className="btn btn-ghost btn-sm"
+          onClick={() => setShowTemplatePicker(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            borderColor: currentTemplate.accent,
+            color: currentTemplate.accent,
+          }}
         >
-          ← Back
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: currentTemplate.accent, flexShrink: 0 }} />
+          {t.templatePicker?.button || '🎨 Template'}
+          <span style={{ fontWeight: 400, opacity: .7 }}>· {currentTemplate.name}</span>
         </button>
 
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={handleSave}
-          disabled={saving}
-        >
-          {saving ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Saving…</> : '💾 Save'}
+        <span style={{ fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>{t.editor.ctrlS}</span>
+
+        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/')}>
+          {t.editor.back}
         </button>
 
-        <button
-          className="btn btn-success btn-sm"
-          onClick={handleDownload}
-          disabled={exporting}
-        >
-          {exporting ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Exporting…</> : '⬇ PDF'}
+        <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
+          {saving
+            ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> {t.editor.saving}</>
+            : t.editor.save}
+        </button>
+
+        <button className="btn btn-success btn-sm" onClick={handleDownload} disabled={exporting}>
+          {exporting
+            ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> {t.editor.exporting}</>
+            : t.editor.pdf}
         </button>
       </div>
 
-      {/* Editor Body — Form | Preview split */}
+      {/* Body */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-
-        {/* Left: Form */}
         <div style={{
-          width: '45%',
-          minWidth: 320,
+          width: '45%', minWidth: 320,
           overflowY: 'auto',
-          borderRight: '1px solid var(--border)',
+          borderInlineEnd: '1px solid var(--border)',
           background: 'var(--bg)',
           padding: '20px',
         }}>
           <ResumeForm />
         </div>
 
-        {/* Right: Preview */}
         <div style={{
-          flex: 1,
-          overflowY: 'auto',
+          flex: 1, overflowY: 'auto',
           background: '#e5e7eb',
-          display: 'flex',
-          justifyContent: 'center',
+          display: 'flex', justifyContent: 'center',
           padding: '24px',
         }}>
           <div style={{
             background: '#fff',
-            width: '100%',
-            maxWidth: 680,
-            minHeight: 900,
+            width: '100%', maxWidth: 680, minHeight: 900,
             boxShadow: '0 4px 24px rgba(0,0,0,.15)',
             borderRadius: 4,
-            padding: '28px 32px',
+            overflow: 'hidden',
           }}>
             <ResumePreview />
           </div>
         </div>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div className={`toast ${toast.type}`}>{toast.msg}</div>
+      {/* Template Picker Modal */}
+      {showTemplatePicker && (
+        <TemplatePicker onClose={() => setShowTemplatePicker(false)} />
       )}
+
+      {toast && <div className={`toast ${toast.type}`}>{toast.msg}</div>}
     </div>
   )
 }

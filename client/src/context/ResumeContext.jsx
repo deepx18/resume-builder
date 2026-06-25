@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback } from 'react'
 
 export const defaultResume = {
   title: 'My Resume',
+  lang:  'en',   // persisted with the resume so PDF matches the editing language
   personalInfo: {
     name: '', email: '', phone: '',
     location: '', website: '', linkedin: '', summary: '',
@@ -16,14 +17,11 @@ export const defaultResume = {
 const ResumeContext = createContext(null)
 
 export function ResumeProvider({ children }) {
-  const [resume, setResume]   = useState(defaultResume)
-  const [saved,  setSaved]    = useState(true)
+  const [resume, setResume] = useState(defaultResume)
+  const [saved,  setSaved]  = useState(true)
 
   const updatePersonalInfo = useCallback((field, value) => {
-    setResume(prev => ({
-      ...prev,
-      personalInfo: { ...prev.personalInfo, [field]: value },
-    }))
+    setResume(prev => ({ ...prev, personalInfo: { ...prev.personalInfo, [field]: value } }))
     setSaved(false)
   }, [])
 
@@ -32,7 +30,7 @@ export function ResumeProvider({ children }) {
     setSaved(false)
   }, [])
 
-  // Education helpers
+  // Education
   const addEducation = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -55,14 +53,11 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeEducation = useCallback((index) => {
-    setResume(prev => ({
-      ...prev,
-      education: prev.education.filter((_, i) => i !== index),
-    }))
+    setResume(prev => ({ ...prev, education: prev.education.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
-  // Experience helpers
+  // Experience
   const addExperience = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -85,14 +80,10 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeExperience = useCallback((index) => {
-    setResume(prev => ({
-      ...prev,
-      experience: prev.experience.filter((_, i) => i !== index),
-    }))
+    setResume(prev => ({ ...prev, experience: prev.experience.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
-  // Bullet helpers for experience
   const updateBullet = useCallback((expIndex, bulletIndex, value) => {
     setResume(prev => {
       const arr = [...prev.experience]
@@ -116,34 +107,25 @@ export function ResumeProvider({ children }) {
   const removeBullet = useCallback((expIndex, bulletIndex) => {
     setResume(prev => {
       const arr = [...prev.experience]
-      arr[expIndex] = {
-        ...arr[expIndex],
-        bullets: arr[expIndex].bullets.filter((_, i) => i !== bulletIndex),
-      }
+      arr[expIndex] = { ...arr[expIndex], bullets: arr[expIndex].bullets.filter((_, i) => i !== bulletIndex) }
       return { ...prev, experience: arr }
     })
     setSaved(false)
   }, [])
 
-  // Skills helpers
+  // Skills
   const addSkill = useCallback((skill) => {
     if (!skill.trim()) return
-    setResume(prev => ({
-      ...prev,
-      skills: [...prev.skills, skill.trim()],
-    }))
+    setResume(prev => ({ ...prev, skills: [...prev.skills, skill.trim()] }))
     setSaved(false)
   }, [])
 
   const removeSkill = useCallback((index) => {
-    setResume(prev => ({
-      ...prev,
-      skills: prev.skills.filter((_, i) => i !== index),
-    }))
+    setResume(prev => ({ ...prev, skills: prev.skills.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 
-  // Projects helpers
+  // Projects
   const addProject = useCallback(() => {
     setResume(prev => ({
       ...prev,
@@ -165,10 +147,7 @@ export function ResumeProvider({ children }) {
   }, [])
 
   const removeProject = useCallback((index) => {
-    setResume(prev => ({
-      ...prev,
-      projects: prev.projects.filter((_, i) => i !== index),
-    }))
+    setResume(prev => ({ ...prev, projects: prev.projects.filter((_, i) => i !== index) }))
     setSaved(false)
   }, [])
 

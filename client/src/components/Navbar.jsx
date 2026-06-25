@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLang } from '../context/LanguageContext'
+import LanguageSwitcher from './LanguageSwitcher'
 
 export default function Navbar() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const { t } = useLang()
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false)
@@ -33,20 +35,22 @@ export default function Navbar() {
           <line x1="16" y1="17" x2="8" y2="17"/>
           <polyline points="10 9 9 9 8 9"/>
         </svg>
-        ResumeBuilder
+        {t.nav.brand}
       </Link>
 
       <div className="navbar-actions">
+        {/* Language Switcher always visible */}
+        <LanguageSwitcher />
+
         {user ? (
           <>
             <button
               className="btn btn-primary btn-sm"
               onClick={() => navigate('/editor')}
             >
-              + New Resume
+              {t.nav.newResume}
             </button>
 
-            {/* User avatar / menu */}
             <div ref={menuRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setOpen(o => !o)}
@@ -76,7 +80,7 @@ export default function Navbar() {
               {open && (
                 <div style={{
                   position: 'absolute',
-                  right: 0,
+                  insetInlineEnd: 0,
                   top: 'calc(100% + 8px)',
                   background: 'var(--bg-white)',
                   border: '1px solid var(--border)',
@@ -86,22 +90,20 @@ export default function Navbar() {
                   zIndex: 200,
                   overflow: 'hidden',
                 }}>
-                  {/* User info */}
                   <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{user.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{user.email}</div>
                   </div>
-
-                  <MenuItem icon="📄" label="My Resumes"    onClick={() => { setOpen(false); navigate('/') }} />
-                  <MenuItem icon="🚪" label="Sign Out"      onClick={handleLogout} danger />
+                  <MenuItem icon="📄" label={t.nav.myResumes}  onClick={() => { setOpen(false); navigate('/') }} />
+                  <MenuItem icon="🚪" label={t.nav.signOut}    onClick={handleLogout} danger />
                 </div>
               )}
             </div>
           </>
         ) : (
           <>
-            <button className="btn btn-ghost btn-sm"   onClick={() => navigate('/login')}>Sign In</button>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate('/register')}>Get Started</button>
+            <button className="btn btn-ghost btn-sm"   onClick={() => navigate('/login')}>{t.nav.signIn}</button>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/register')}>{t.nav.getStarted}</button>
           </>
         )}
       </div>
@@ -146,7 +148,7 @@ function MenuItem({ icon, label, onClick, danger }) {
         border: 'none', padding: '10px 16px',
         cursor: 'pointer', fontSize: 13,
         color: danger ? 'var(--danger)' : 'var(--text)',
-        textAlign: 'left',
+        textAlign: 'start',
       }}
     >
       <span>{icon}</span>{label}

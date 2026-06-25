@@ -1,5 +1,3 @@
-// Re-export the shared axios instance that already handles auth token injection
-// and silent refresh. All other services import from here.
 export { api as default } from '../context/AuthContext'
 import { api } from '../context/AuthContext'
 

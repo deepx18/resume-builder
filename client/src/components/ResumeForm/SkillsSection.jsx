@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useResume } from '../../context/ResumeContext'
+import { useLang }   from '../../context/LanguageContext'
 
 export default function SkillsSection() {
   const { resume, addSkill, removeSkill } = useResume()
+  const { t } = useLang()
   const [input, setInput] = useState('')
 
   const handleKeyDown = (e) => {
@@ -20,12 +22,11 @@ export default function SkillsSection() {
 
   return (
     <div>
-      <div className="section-heading">Skills</div>
+      <div className="section-heading">{t.skills.heading}</div>
 
-      {/* Tag display */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, minHeight: 40 }}>
         {resume.skills.length === 0 && (
-          <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>No skills added yet…</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>{t.skills.empty}</span>
         )}
         {resume.skills.map((s, i) => (
           <span key={i} style={{
@@ -37,37 +38,36 @@ export default function SkillsSection() {
             {s}
             <button
               onClick={() => removeSkill(i)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--primary)', padding: 0, fontSize: 14, lineHeight: 1,
-              }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: 0, fontSize: 14, lineHeight: 1 }}
             >×</button>
           </span>
         ))}
       </div>
 
-      {/* Input */}
       <div style={{ display: 'flex', gap: 8 }}>
         <input
           className="form-control"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type a skill and press Enter or comma…"
+          placeholder={t.skills.inputPlaceholder}
         />
         <button className="btn btn-primary" onClick={handleAdd} disabled={!input.trim()}>
-          Add
+          {t.skills.add}
         </button>
       </div>
 
       <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
-        Press <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>Enter</kbd> or <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>,</kbd> after each skill.
+        {t.skills.hint}{' '}
+        <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>Enter</kbd>
+        {' '}{t.skills.hintOr}{' '}
+        <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>,</kbd>
+        {' '}{t.skills.hintAfter}
       </p>
 
-      {/* Suggested skills */}
       <div style={{ marginTop: 20 }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)' }}>
-          Common skills (click to add):
+          {t.skills.suggested}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {[

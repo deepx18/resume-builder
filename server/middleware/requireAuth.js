@@ -1,9 +1,5 @@
 const tokenService = require('../services/tokenService');
 
-/**
- * Protects any route that requires authentication.
- * Expects: Authorization: Bearer <accessToken>
- */
 module.exports = function requireAuth(req, res, next) {
   const header = req.headers['authorization'];
   if (!header || !header.startsWith('Bearer ')) {

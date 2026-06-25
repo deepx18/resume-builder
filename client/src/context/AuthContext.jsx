@@ -4,19 +4,17 @@ import axios from 'axios'
 const AuthContext = createContext(null)
 
 const api = axios.create({
-  baseURL:        import.meta.env.VITE_API_URL || '/api',
-  timeout:        30000,
-  withCredentials: true,    // send httpOnly refresh-token cookie
+  baseURL:         import.meta.env.VITE_API_URL || '/api',
+  timeout:         30000,
+  withCredentials: true,
 })
 
-/* ── Token storage (memory + sessionStorage for page refresh) ─────────────── */
-let memoryToken = null   // never touches localStorage
+let memoryToken = null
 
-function saveToken(t)   { memoryToken = t; sessionStorage.setItem('_at', t) }
-function loadToken()    { return memoryToken || sessionStorage.getItem('_at') }
-function clearToken()   { memoryToken = null; sessionStorage.removeItem('_at') }
+function saveToken(t)  { memoryToken = t; sessionStorage.setItem('_at', t) }
+function loadToken()   { return memoryToken || sessionStorage.getItem('_at') }
+function clearToken()  { memoryToken = null; sessionStorage.removeItem('_at') }
 
-/* ── Silent refresh ───────────────────────────────────────────────────────── */
 let refreshPromise = null
 
 async function silentRefresh() {
@@ -27,14 +25,12 @@ async function silentRefresh() {
   return refreshPromise
 }
 
-/* ── Axios request interceptor: attach access token ─────────────────────── */
 api.interceptors.request.use(config => {
   const token = loadToken()
   if (token) config.headers['Authorization'] = `Bearer ${token}`
   return config
 })
 
-/* ── Axios response interceptor: auto-refresh on 401 TOKEN_EXPIRED ────────── */
 api.interceptors.response.use(
   res => res,
   async err => {
@@ -62,14 +58,11 @@ api.interceptors.response.use(
 
 export { api }
 
-/* ─────────────────────────────────────────────────────────────────────────── */
-
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
-  const [loading, setLoading] = useState(true)   // true while checking session
+  const [loading, setLoading] = useState(true)
   const timerRef = useRef(null)
 
-  /* Boot: try silent refresh to restore session */
   useEffect(() => {
     silentRefresh()
       .then(() => api.get('/auth/me'))
@@ -78,14 +71,12 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
-  /* Listen for forced logout (expired refresh token) */
   useEffect(() => {
     const handler = () => { setUser(null); clearToken() }
     window.addEventListener('auth:logout', handler)
     return () => window.removeEventListener('auth:logout', handler)
   }, [])
 
-  /* Proactive silent refresh 1 min before access token expires (14 min) */
   useEffect(() => {
     if (!user) return
     clearTimeout(timerRef.current)

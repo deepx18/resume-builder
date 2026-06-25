@@ -4,101 +4,96 @@ const { OAuth2Client } = require('google-auth-library');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-/* ─── helpers ─────────────────────────────────────────────────────────────── */
+// ── helpers ───────────────────────────────────────────────────────────────────
 
-function sendTokens(res, user) {
+function issueTokens(res, user) {
   const accessToken  = tokenService.signAccess(user);
   const refreshToken = tokenService.signRefresh(user);
 
-  // Rotate: add new refresh token to user's list (keep last 5 devices)
+  // Store refresh token hash in DB (simple version: store raw token)
   user.refreshTokens.push({ token: refreshToken });
-  if (user.refreshTokens.length > 5) user.refreshTokens.shift();
-  user.save();   // fire-and-forget
+  // Keep at most 5 concurrent sessions
+  if (user.refreshTokens.length > 5) {
+    user.refreshTokens = user.refreshTokens.slice(-5);
+  }
 
   res.cookie('refreshToken', refreshToken, tokenService.refreshCookieOptions());
-
-  return res.json({
-    accessToken,
-    user: user.toSafeObject(),
-  });
+  return accessToken;
 }
 
-/* ─── POST /api/auth/register ──────────────────────────────────────────────── */
+// ── controllers ───────────────────────────────────────────────────────────────
+
+// POST /api/auth/register
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     if (!name || !email || !password)
       return res.status(400).json({ error: 'name, email and password are required.' });
 
-    if (password.length < 8)
-      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    if (await User.findOne({ email }))
+      return res.status(409).json({ error: 'Email already registered.' });
 
-    const exists = await User.findOne({ email: email.toLowerCase() });
-    if (exists) return res.status(409).json({ error: 'An account with this email already exists.' });
+    const user = new User({ name, email, password });
+    const accessToken = issueTokens(res, user);
+    await user.save();
 
-    const user = await User.create({ name, email, password, isVerified: true });
-    return sendTokens(res, user);
+    res.status(201).json({ accessToken, user: user.toSafeObject() });
   } catch (e) {
-    console.error('[Auth] register error:', e.message);
-    res.status(500).json({ error: 'Registration failed. Please try again.' });
+    res.status(500).json({ error: e.message });
   }
 };
 
-/* ─── POST /api/auth/login ─────────────────────────────────────────────────── */
+// POST /api/auth/login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !(await user.comparePassword(password)))
+      return res.status(401).json({ error: 'Invalid email or password.' });
 
-    if (!email || !password)
-      return res.status(400).json({ error: 'Email and password are required.' });
+    const accessToken = issueTokens(res, user);
+    await user.save();
 
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(401).json({ error: 'Invalid email or password.' });
-
-    const valid = await user.comparePassword(password);
-    if (!valid) return res.status(401).json({ error: 'Invalid email or password.' });
-
-    return sendTokens(res, user);
+    res.json({ accessToken, user: user.toSafeObject() });
   } catch (e) {
-    console.error('[Auth] login error:', e.message);
-    res.status(500).json({ error: 'Login failed. Please try again.' });
+    res.status(500).json({ error: e.message });
   }
 };
 
-/* ─── POST /api/auth/google ────────────────────────────────────────────────── */
+// POST /api/auth/google
 exports.googleAuth = async (req, res) => {
   try {
-    const { credential } = req.body;   // ID token from Google One-Tap / Sign-in button
-    if (!credential) return res.status(400).json({ error: 'Google credential is required.' });
-
+    const { credential } = req.body;
+    if (!credential) return res.status(400).json({ error: 'credential is required.' });
     if (!process.env.GOOGLE_CLIENT_ID)
-      return res.status(503).json({ error: 'Google OAuth is not configured on this server.' });
+      return res.status(503).json({ error: 'Google OAuth not configured.' });
 
-    const ticket = await googleClient.verifyIdToken({
+    const ticket  = await googleClient.verifyIdToken({
       idToken:  credential,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture: avatar } = payload;
 
-    const { sub: googleId, email, name, picture } = ticket.getPayload();
-
-    // Find by googleId first, then fall back to email (link existing account)
     let user = await User.findOne({ $or: [{ googleId }, { email }] });
-
-    if (user) {
-      if (!user.googleId) { user.googleId = googleId; user.avatar = picture; }
+    if (!user) {
+      user = new User({ name, email, googleId, avatar, isVerified: true });
     } else {
-      user = await User.create({ name, email, googleId, avatar: picture, isVerified: true });
+      user.googleId = user.googleId || googleId;
+      user.avatar   = avatar || user.avatar;
     }
 
-    return sendTokens(res, user);
+    const accessToken = issueTokens(res, user);
+    await user.save();
+
+    res.json({ accessToken, user: user.toSafeObject() });
   } catch (e) {
-    console.error('[Auth] Google auth error:', e.message);
-    res.status(401).json({ error: 'Google sign-in failed. Please try again.' });
+    console.error('Google auth error:', e.message);
+    res.status(401).json({ error: 'Google authentication failed.' });
   }
 };
 
-/* ─── POST /api/auth/refresh ───────────────────────────────────────────────── */
+// POST /api/auth/refresh
 exports.refresh = async (req, res) => {
   try {
     const token = req.cookies?.refreshToken;
@@ -108,51 +103,53 @@ exports.refresh = async (req, res) => {
     try {
       payload = tokenService.verifyRefresh(token);
     } catch {
-      return res.status(401).json({ error: 'Refresh token expired or invalid.' });
+      return res.status(401).json({ error: 'Invalid or expired refresh token.' });
     }
 
     const user = await User.findById(payload.sub);
     if (!user) return res.status(401).json({ error: 'User not found.' });
 
-    // Token rotation: verify this refresh token is in the user's list
-    const stored = user.refreshTokens.find(rt => rt.token === token);
-    if (!stored) return res.status(401).json({ error: 'Refresh token revoked.' });
+    const stored = user.refreshTokens.find(t => t.token === token);
+    if (!stored)  return res.status(401).json({ error: 'Refresh token revoked.' });
 
-    // Remove old token — a new one will be issued
-    user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== token);
+    // Rotate: remove old, issue new
+    user.refreshTokens = user.refreshTokens.filter(t => t.token !== token);
+    const accessToken  = issueTokens(res, user);
+    await user.save();
 
-    return sendTokens(res, user);
+    res.json({ accessToken });
   } catch (e) {
-    console.error('[Auth] refresh error:', e.message);
-    res.status(500).json({ error: 'Token refresh failed.' });
+    res.status(500).json({ error: e.message });
   }
 };
 
-/* ─── POST /api/auth/logout ────────────────────────────────────────────────── */
+// POST /api/auth/logout
 exports.logout = async (req, res) => {
   try {
     const token = req.cookies?.refreshToken;
-
     if (token) {
-      const payload = tokenService.verifyRefresh(token);
-      await User.findByIdAndUpdate(payload.sub, {
-        $pull: { refreshTokens: { token } },
-      });
+      const payload = tokenService.verifyRefresh(token).catch(() => null);
+      if (payload) {
+        const user = await User.findById(payload.sub);
+        if (user) {
+          user.refreshTokens = user.refreshTokens.filter(t => t.token !== token);
+          await user.save();
+        }
+      }
     }
+  } catch {}
 
-    res.clearCookie('refreshToken', { path: '/api/auth' });
-    res.json({ message: 'Logged out.' });
-  } catch {
-    // Even if verification fails, clear the cookie
-    res.clearCookie('refreshToken', { path: '/api/auth' });
-    res.json({ message: 'Logged out.' });
-  }
+  res.clearCookie('refreshToken', { path: '/api/auth' });
+  res.json({ message: 'Logged out.' });
 };
 
-/* ─── GET /api/auth/me ─────────────────────────────────────────────────────── */
+// GET /api/auth/me
 exports.me = async (req, res) => {
-  // req.user is set by the auth middleware
-  const user = await User.findById(req.user.sub);
-  if (!user) return res.status(404).json({ error: 'User not found.' });
-  res.json(user.toSafeObject());
+  try {
+    const user = await User.findById(req.user.sub);
+    if (!user) return res.status(404).json({ error: 'User not found.' });
+    res.json(user.toSafeObject());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 };
