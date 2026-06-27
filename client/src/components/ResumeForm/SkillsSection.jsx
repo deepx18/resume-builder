@@ -32,7 +32,7 @@ export default function SkillsSection() {
           <span key={i} style={{
             display: 'inline-flex', alignItems: 'center', gap: 5,
             background: 'var(--primary-light)', color: 'var(--primary)',
-            border: '1px solid #bfdbfe', padding: '4px 10px',
+            border: '1px solid var(--primary-border)', padding: '4px 10px',
             borderRadius: 999, fontSize: 13, fontWeight: 500,
           }}>
             {s}
@@ -59,9 +59,9 @@ export default function SkillsSection() {
 
       <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
         {t.skills.hint}{' '}
-        <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>Enter</kbd>
+        <kbd style={{ background: 'var(--kbd-bg)', padding: '1px 5px', borderRadius: 3, border: '1px solid var(--kbd-border)' }}>Enter</kbd>
         {' '}{t.skills.hintOr}{' '}
-        <kbd style={{ background: '#f3f4f6', padding: '1px 5px', borderRadius: 3, border: '1px solid #d1d5db' }}>,</kbd>
+        <kbd style={{ background: 'var(--kbd-bg)', padding: '1px 5px', borderRadius: 3, border: '1px solid var(--kbd-border)' }}>,</kbd>
         {' '}{t.skills.hintAfter}
       </p>
 

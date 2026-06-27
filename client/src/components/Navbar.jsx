@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLang } from '../context/LanguageContext'
 import LanguageSwitcher from './LanguageSwitcher'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -41,6 +42,7 @@ export default function Navbar() {
       <div className="navbar-actions">
         {/* Language Switcher always visible */}
         <LanguageSwitcher />
+        <ThemeToggle />
 
         {user ? (
           <>
@@ -144,7 +146,7 @@ function MenuItem({ icon, label, onClick, danger }) {
       onMouseLeave={() => setHover(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        width: '100%', background: hover ? (danger ? '#fef2f2' : 'var(--bg)') : 'none',
+        width: '100%', background: hover ? (danger ? 'var(--danger-soft)' : 'var(--surface-low)') : 'none',
         border: 'none', padding: '10px 16px',
         cursor: 'pointer', fontSize: 13,
         color: danger ? 'var(--danger)' : 'var(--text)',

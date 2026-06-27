@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { ResumeProvider }  from './context/ResumeContext'
 import { AuthProvider }    from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute      from './components/Auth/ProtectedRoute'
 import Navbar       from './components/Navbar'
 import HomePage     from './pages/HomePage'
@@ -14,32 +15,34 @@ export default function App() {
   const isEditor = location.pathname.startsWith('/editor')
 
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <ResumeProvider>
-          <div className="app-shell">
-            {!isEditor && <Navbar />}
-            <main className="main-content">
-              <Routes>
-                {/* Public */}
-                <Route path="/login"    element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <ResumeProvider>
+            <div className="app-shell">
+              {!isEditor && <Navbar />}
+              <main className="main-content">
+                <Routes>
+                  {/* Public */}
+                  <Route path="/login"    element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
 
-                {/* Protected */}
-                <Route path="/" element={
-                  <ProtectedRoute><HomePage /></ProtectedRoute>
-                }/>
-                <Route path="/editor" element={
-                  <ProtectedRoute><EditorPage /></ProtectedRoute>
-                }/>
-                <Route path="/editor/:id" element={
-                  <ProtectedRoute><EditorPage /></ProtectedRoute>
-                }/>
-              </Routes>
-            </main>
-          </div>
-        </ResumeProvider>
-      </AuthProvider>
-    </LanguageProvider>
+                  {/* Protected */}
+                  <Route path="/" element={
+                    <ProtectedRoute><HomePage /></ProtectedRoute>
+                  }/>
+                  <Route path="/editor" element={
+                    <ProtectedRoute><EditorPage /></ProtectedRoute>
+                  }/>
+                  <Route path="/editor/:id" element={
+                    <ProtectedRoute><EditorPage /></ProtectedRoute>
+                  }/>
+                </Routes>
+              </main>
+            </div>
+          </ResumeProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   )
 }

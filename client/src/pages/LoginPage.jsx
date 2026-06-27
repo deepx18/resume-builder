@@ -109,6 +109,6 @@ const styles = {
   logoText: { fontSize: 20, fontWeight: 700, color: 'var(--primary)' },
   title:    { fontSize: 22, fontWeight: 700, marginBottom: 6, textAlign: 'center' },
   sub:      { fontSize: 14, color: 'var(--text-muted)', marginBottom: 24, textAlign: 'center' },
-  error:    { background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 'var(--radius)', padding: '10px 14px', fontSize: 13, marginBottom: 14 },
+  error:    { background: 'var(--danger-soft)', border: '1px solid var(--danger-soft-border)', color: 'var(--danger-soft-text)', borderRadius: 'var(--radius)', padding: '10px 14px', fontSize: 13, marginBottom: 14 },
   footer:   { marginTop: 24, textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' },
 }

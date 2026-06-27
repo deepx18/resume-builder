@@ -112,7 +112,7 @@ export default function ExperienceSection() {
           {/* AI Suggestions */}
           <div style={{
             background: 'var(--primary-light)',
-            border: '1px solid #bfdbfe',
+            border: '1px solid var(--primary-border)',
             borderRadius: 'var(--radius)',
             padding: 12,
             marginTop: 8,
@@ -137,7 +137,7 @@ export default function ExperienceSection() {
                 {aiLoading === i ? t.experience.aiLoading : t.experience.aiGenerate}
               </button>
             </div>
-            <p style={{ fontSize: 11, color: '#4b5563', marginTop: 6 }}>{t.experience.aiNote}</p>
+            <p style={{ fontSize: 11, color: 'var(--note-text)', marginTop: 6 }}>{t.experience.aiNote}</p>
           </div>
         </div>
       ))}

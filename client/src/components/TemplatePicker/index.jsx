@@ -32,7 +32,7 @@ export default function TemplatePicker({ onClose }) {
       onClick={handleOverlayClick}
       style={{
         position: 'fixed', inset: 0,
-        background: 'rgba(0,0,0,.55)',
+        background: 'var(--overlay)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         zIndex: 1000,
         padding: 24,
@@ -89,7 +89,7 @@ export default function TemplatePicker({ onClose }) {
                 style={{
                   border: `2px solid ${isActive ? tmpl.accent : 'var(--border)'}`,
                   borderRadius: 'var(--radius)',
-                  background: isActive ? `${tmpl.accent}10` : 'var(--bg-white)',
+                  background: isActive ? `${tmpl.accent}18` : 'var(--bg-white)',
                   cursor: 'pointer',
                   padding: "5px 25px",
                   overflow: 'hidden',
@@ -100,7 +100,7 @@ export default function TemplatePicker({ onClose }) {
               >
                 {/* Thumbnail */}
                 <div style={{
-                  background: '#f8fafc',
+                  background: 'var(--template-thumb-bg)',
                   borderBottom: `1px solid ${isActive ? tmpl.accent : 'var(--border)'}`,
                   display: 'flex',
                   alignItems: 'center',
